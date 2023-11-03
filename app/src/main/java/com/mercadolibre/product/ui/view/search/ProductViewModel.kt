@@ -27,7 +27,7 @@ class ProductViewModel @Inject constructor(
     fun searchProducts(query: String) = viewModelScope.launch {
         _query = query
         productItemUseCase(_query).collect {
-            state.value = ProductListUiStateReady(productList = it)
+            handleResponse(it)
         }
     }
 

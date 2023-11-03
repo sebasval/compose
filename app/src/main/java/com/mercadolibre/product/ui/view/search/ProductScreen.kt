@@ -62,7 +62,11 @@ fun ProductScreen(
                 SearchTextField(
                     value = search, onValueChange = {
                         search = it
-                        productViewModel.searchProducts(it.text)
+                        if (it.text.isEmpty()) {
+                            productViewModel.getProducts()
+                        } else {
+                            productViewModel.searchProducts(it.text)
+                        }
                     }, hint = stringResource(R.string.cars_screen_search_hint),
                     color = MaterialTheme.colors.background
                 )
@@ -81,7 +85,12 @@ fun ProductsContent(vm: ProductViewModel, onImageClick: (ProductItemInfo) -> Uni
     vm.state.value.let { state ->
         when (state) {
             is Loading -> LoadingBar()
-            is ProductListUiStateReady -> state.productList?.let { BindList(it, onImageClick = onImageClick) }
+            is ProductListUiStateReady -> state.productList?.let {
+                BindList(
+                    it,
+                    onImageClick = onImageClick
+                )
+            }
             is ProductListUiStateError -> state.error?.let { ShowToast(it) }
         }
     }
@@ -153,16 +162,23 @@ fun ListItem(item: ProductItem, onClick: (ProductItem) -> Unit) {
 
 @Composable
 fun BindList(list: List<ProductItem>, onImageClick: (ProductItemInfo) -> Unit) {
-    if (list.isEmpty()) ShowToast(text = stringResource(R.string.empty_products))
     LazyColumn(contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp)) {
         items(
             items = list,
             itemContent = { item ->
                 ListItem(item, onClick = { onClickedItem ->
                     onClickedItem.let {
-                        val encodedUrl = URLEncoder.encode(it.thumbnail, StandardCharsets.UTF_8.toString())
+                        val encodedUrl =
+                            URLEncoder.encode(it.thumbnail, StandardCharsets.UTF_8.toString())
 
-                        onImageClick.invoke(ProductItemInfo(encodedUrl,it.title.replace("/",""),it.condition,it.price.toString()))
+                        onImageClick.invoke(
+                            ProductItemInfo(
+                                encodedUrl,
+                                it.title.replace("/", ""),
+                                it.condition,
+                                it.price.toString()
+                            )
+                        )
                     }
                 })
             })

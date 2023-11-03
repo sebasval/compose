@@ -5,6 +5,6 @@ import retrofit2.http.*
 
 interface ApiService {
 
-    @GET("sites/MCO/search?q=celulares")
-    suspend fun getProducts(): MercadoLibreResponse
+    @GET("sites/MCO/search")
+    suspend fun getProducts(@Query("q") searchTerm: String): MercadoLibreResponse
 }

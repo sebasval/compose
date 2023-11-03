@@ -12,31 +12,27 @@ class GetProductItemUseCase @Inject constructor(
     private val defaultDispatcher: CoroutineDispatcher
 ) {
 
-    private var productItem = listOf<ProductItem>()
-
     suspend operator fun invoke(): Flow<Resource<List<ProductItem>>> =
-        flow<Resource<List<ProductItem>>> {
+        getProductItemsFlow(DEFAULT_QUERY)
+
+    suspend operator fun invoke(query: String): Flow<Resource<List<ProductItem>>> =
+        getProductItemsFlow(query)
+
+    private suspend fun getProductItemsFlow(query: String): Flow<Resource<List<ProductItem>>> {
+        return flow {
             try {
                 emit(Resource.loading())
-                productItem = repository.getProducts().results
-                emit(Resource.success(productItem))
+                val products = query.let {
+                    repository.getProducts(it).results
+                }
+                emit(Resource.success(products))
             } catch (e: Throwable) {
                 emit(Resource.error(e))
             }
         }.flowOn(defaultDispatcher)
-
-    suspend operator fun invoke(
-        query: String
-    ): Flow<List<ProductItem>> = flow {
-        filter(flowOf(productItem), query).collect { emit(it) }
     }
 
-    private fun filter(
-        response: Flow<List<ProductItem>>,
-        query: String
-    ): Flow<List<ProductItem>> {
-        return response.map { it.filter { productItem -> productItem.title.contains(query) } }
-            .flowOn(defaultDispatcher)
+    companion object {
+        const val DEFAULT_QUERY = "Celulares"
     }
 }
-

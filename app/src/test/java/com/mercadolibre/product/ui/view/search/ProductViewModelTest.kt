@@ -65,7 +65,7 @@ class ProductViewModelTest {
         )
 
         val mockResponse = MercadoLibreResponse(mockProductList)
-        whenever(mockRepository.getProducts()).thenReturn(mockResponse)
+        whenever(mockRepository.getProducts(any())).thenReturn(mockResponse)
 
         val getProductItemUseCase = GetProductItemUseCase(mockRepository, Dispatchers.Unconfined)
         val viewModel = ProductViewModel(getProductItemUseCase)
@@ -80,7 +80,7 @@ class ProductViewModelTest {
 
     @Test
     fun getProducts_isFail() = runTest {
-        whenever(repository.getProducts()) doAnswer {
+        whenever(repository.getProducts(any())) doAnswer {
             throw IOException()
         }
         viewModel.getProducts()

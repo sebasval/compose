@@ -10,5 +10,5 @@ import javax.inject.Inject
 class ProductRepository @Inject constructor(
     private val apiService: ApiService,
 ) {
-    suspend fun getProducts(): MercadoLibreResponse = apiService.getProducts()
+    suspend fun getProducts(query: String): MercadoLibreResponse = apiService.getProducts(query)
 }
