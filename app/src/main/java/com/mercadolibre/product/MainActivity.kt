@@ -8,7 +8,7 @@ import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.mercadolibre.product.ui.navigation.NavGraph
-import com.mercadolibre.product.ui.theme.AutoMautoAppTheme
+import com.mercadolibre.product.ui.theme.MercadoLibreAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -24,7 +24,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun ProductAppMain() {
-    AutoMautoAppTheme {
+    MercadoLibreAppTheme {
         Surface(modifier = Modifier.fillMaxSize()) {
             NavGraph()
         }
