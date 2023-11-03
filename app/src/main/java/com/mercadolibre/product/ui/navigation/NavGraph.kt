@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.mercadolibre.product.ui.model.ProductItemInfo
 import com.mercadolibre.product.ui.model.toProductItemInfo
+import com.mercadolibre.product.ui.view.detailsinfo.ScreenDetailsInfo
 import com.mercadolibre.product.ui.view.image.ProductDetailScreen
 import com.mercadolibre.product.ui.view.search.ProductScreen
 
@@ -19,12 +20,30 @@ fun NavGraph() {
     val actions = remember(navController) { MainActions(navController) }
 
     NavHost(navController, startDestination = Screen.Products.route) {
-        composable(Screen.Products.route) { ProductScreen { actions.goToImagesScreen.invoke(it) } }
+        composable(Screen.Products.route) { ProductScreen { actions.goToImagesScreen(it.title) } }
         composable(Screen.Images.route) { backStackEntry ->
-            val itemString = backStackEntry.arguments?.getString("item")
-            val productItemInfo = itemString?.toProductItemInfo()
+            val title = backStackEntry.arguments?.getString("title")
+            val actions = remember(navController) { MainActions(navController) }
+
+
+            val navigateWithProductTitle: (ProductItemInfo) -> Unit = { productItemInfo ->
+                actions.goToDetailsScreen(productItemInfo)
+            }
+
+            if (title != null) {
+                ProductDetailScreen(
+                    productItemTitle = title,
+                    onClick = navigateWithProductTitle
+                )
+            }
+        }
+
+
+        composable(Screen.Details.route) { backStackEntry ->
+            val productInfoString = backStackEntry.arguments?.getString("productInfo")
+            val productItemInfo = productInfoString?.toProductItemInfo()
             if (productItemInfo != null) {
-                ProductDetailScreen(productItemInfo)
+                ScreenDetailsInfo(productItemInfo)
             }
         }
     }
@@ -32,11 +51,11 @@ fun NavGraph() {
 
 class MainActions(private val navController: NavHostController) {
 
-    val goToProductsScreen: () -> Unit = {
-        navController.navigate(Screen.Products.route)
+    val goToImagesScreen: (String) -> Unit = { title ->
+        navController.navigate(Screen.Images.createRoute(title))
     }
 
-    val goToImagesScreen: (ProductItemInfo) -> Unit = {
-        navController.navigate(Screen.Images.createRoute(it))
+    val goToDetailsScreen: (ProductItemInfo) -> Unit = { productItemInfo ->
+        navController.navigate(Screen.Details.createRoute(productItemInfo))
     }
 }

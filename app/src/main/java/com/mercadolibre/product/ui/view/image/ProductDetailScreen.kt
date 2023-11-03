@@ -1,75 +1,155 @@
 package com.mercadolibre.product.ui.view.image
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
+import com.mercadolibre.component.LoadingBar
+import com.mercadolibre.component.ShowToast
+import com.mercadolibre.data.model.ProductItem
 import com.mercadolibre.product.R
 import com.mercadolibre.product.ui.model.ProductItemInfo
+import com.mercadolibre.product.ui.theme.Shapes
+import com.mercadolibre.product.ui.theme.Typography
+import com.mercadolibre.product.ui.view.search.*
+import com.mercadolibre.product.ui.view.search.Loading
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 @Composable
-fun ProductDetailScreen(productItemInfo: ProductItemInfo) {
+fun ProductDetailScreen(
+    productItemTitle: String,
+    onClick: (ProductItemInfo) -> Unit,
+    productViewModel: ProductViewModel = hiltViewModel()
+) {
+    productViewModel.searchProducts(productItemTitle)
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.image_screen_title)) },
+                title = { Text(stringResource(R.string.detail_list)) },
                 backgroundColor = Color.Yellow,
             )
         },
         modifier = Modifier.fillMaxSize()
     ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-        ) {
-            CarImage(item = productItemInfo.thumbnailUrl)
+        ProductListContent(vm = productViewModel, onImageClick = onClick)
+    }
+}
 
-            Spacer(modifier = Modifier.height(16.dp))
 
-            ProductInfo(productItemInfo)
-
-            Spacer(modifier = Modifier.height(16.dp))
+@Composable
+fun ProductListContent(vm: ProductViewModel, onImageClick: (ProductItemInfo) -> Unit) {
+    vm.state.value.let { state ->
+        when (state) {
+            is Loading -> LoadingBar()
+            is ProductListUiStateReady -> state.productList?.let {
+                BindDetailList(
+                    it,
+                    onImageClick = onImageClick
+                )
+            }
+            is ProductListUiStateError -> state.error?.let { ShowToast(it) }
         }
     }
 }
 
-
 @Composable
-fun ProductInfo(productItemInfo: ProductItemInfo) {
-    Column(
-        modifier = Modifier.padding(16.dp)
-    ) {
-        Text(text = productItemInfo.title, style = MaterialTheme.typography.h6)
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(text = "Condition: ${productItemInfo.condition}", style = MaterialTheme.typography.body2)
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(text = "Price: ${productItemInfo.price} COP", style = MaterialTheme.typography.body1)
+fun BindDetailList(list: List<ProductItem>, onImageClick: (ProductItemInfo) -> Unit) {
+    LazyColumn(contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp)) {
+        items(
+            items = list,
+            itemContent = { item ->
+                ListDetailItem(item, onClick = { onClickedItem ->
+                    onClickedItem.let {
+                        val encodedUrl =
+                            URLEncoder.encode(it.thumbnail, StandardCharsets.UTF_8.toString())
+
+                        onImageClick.invoke(
+                            ProductItemInfo(
+                                encodedUrl,
+                                it.title.replace("/", ""),
+                                it.condition,
+                                it.price.toString()
+                            )
+                        )
+                    }
+                })
+            })
     }
 }
 
 @Composable
-fun CarImage(item: String) {
+fun ListDetailItem(item: ProductItem, onClick: (ProductItem) -> Unit) {
+    Card(
+        shape = Shapes.large,
+        backgroundColor = MaterialTheme.colors.surface,
+        elevation = 2.dp,
+        modifier = Modifier
+            .padding(8.dp)
+            .clickable { onClick(item) }
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            CarImage(item)
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Column(
+                verticalArrangement = Arrangement.SpaceEvenly,
+                horizontalAlignment = Alignment.Start,
+                modifier = Modifier.padding(8.dp)
+            ) {
+                Text(
+                    text = item.title,
+                    fontWeight = FontWeight.Bold,
+                    style = Typography.subtitle1,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                Text(
+                    text = item.condition,
+                    style = Typography.caption
+                )
+
+                Text(
+                    text =item.price.toString(),
+                    style = Typography.body2
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun CarImage(item: ProductItem) {
     Image(
-        painter = rememberAsyncImagePainter(item),
+        painter = rememberAsyncImagePainter(item.thumbnail),
         contentDescription = null,
         contentScale = ContentScale.Crop,
         modifier = Modifier
-            .fillMaxHeight(0.5f)
-            .fillMaxWidth()
-            .padding(24.dp)
+            .size(150.dp)
+            .padding(end = 8.dp)
             .clip(RoundedCornerShape(corner = CornerSize(16.dp)))
     )
 }

@@ -20,10 +20,6 @@ class ProductViewModel @Inject constructor(
     val state = mutableStateOf<ProductListUiState>(Loading)
     private var _query: String = ""
 
-    init {
-        getProducts()
-    }
-
     fun searchProducts(query: String) = viewModelScope.launch {
         _query = query
         productItemUseCase(_query).collect {

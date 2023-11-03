@@ -8,4 +8,5 @@
     <string name="cars_screen_seller">Seller: %s</string>
     <string name="image_screen_title">Details</string>
     <string name="empty_products">Theres no products</string>
+    <string name="detail_list">Detail List</string>
 </resources>

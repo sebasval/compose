@@ -20,7 +20,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
 import com.mercadolibre.product.R
@@ -40,6 +39,7 @@ fun ProductScreen(
     productViewModel: ProductViewModel = hiltViewModel(),
     onClick: (ProductItemInfo) -> Unit
 ) {
+    productViewModel.getProducts()
 
     Surface(
         color = Color.Yellow,
@@ -77,7 +77,7 @@ fun ProductScreen(
     }
 }
 
-private fun manageQuery(
+fun manageQuery(
     it: TextFieldValue,
     productViewModel: ProductViewModel
 ) {
@@ -105,20 +105,7 @@ fun ProductsContent(vm: ProductViewModel, onImageClick: (ProductItemInfo) -> Uni
 }
 
 @Composable
-fun CarImage(item: ProductItem) {
-    Image(
-        painter = rememberAsyncImagePainter(item.thumbnail),
-        contentDescription = null,
-        contentScale = ContentScale.Crop,
-        modifier = Modifier
-            .size(150.dp)
-            .padding(end = 8.dp)
-            .clip(RoundedCornerShape(corner = CornerSize(16.dp)))
-    )
-}
-
-@Composable
-fun ListItem(item: ProductItem, onClick: (ProductItem) -> Unit) {
+fun ListDetailItem(item: ProductItem, onClick: (ProductItem) -> Unit) {
     Card(
         shape = Shapes.large,
         backgroundColor = MaterialTheme.colors.background,
@@ -144,8 +131,8 @@ fun ListItem(item: ProductItem, onClick: (ProductItem) -> Unit) {
                     text = item.title,
                     fontWeight = FontWeight.Bold,
                     style = Typography.subtitle2,
-                    maxLines = 2, // Ejemplo para limitar a dos líneas
-                    overflow = TextOverflow.Ellipsis // Pone puntos suspensivos si el texto excede las líneas
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }
@@ -159,7 +146,7 @@ fun BindList(list: List<ProductItem>, onImageClick: (ProductItemInfo) -> Unit) {
         items(
             items = list,
             itemContent = { item ->
-                ListItem(item, onClick = { onClickedItem ->
+                ListDetailItem(item, onClick = { onClickedItem ->
                     onClickedItem.let {
                         val encodedUrl =
                             URLEncoder.encode(it.thumbnail, StandardCharsets.UTF_8.toString())
