@@ -21,7 +21,7 @@ import com.mercadolibre.product.R
 import com.mercadolibre.product.ui.model.ProductItemInfo
 
 @Composable
-fun ScreenDetailsInfo(productItemInfo: ProductItemInfo) {
+fun DetailInfoScreen(productItemInfo: ProductItemInfo) {
     Scaffold(
         topBar = {
             TopAppBar(

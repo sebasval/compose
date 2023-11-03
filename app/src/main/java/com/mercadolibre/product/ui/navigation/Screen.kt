@@ -4,7 +4,7 @@ import com.mercadolibre.product.ui.model.ProductItemInfo
 import com.mercadolibre.product.ui.model.toSafeArgsString
 
 sealed class Screen(val route: String) {
-    object Products : Screen("products")
+    object Search : Screen("search")
     object Images : Screen("images/{title}") {
         fun createRoute(title: String): String {
             return "images/$title"

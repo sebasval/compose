@@ -33,7 +33,7 @@ import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
 @Composable
-fun ProductDetailScreen(
+fun DetailListProductsScreen(
     productItemTitle: String,
     onClick: (ProductItemInfo) -> Unit,
     productViewModel: ProductViewModel = hiltViewModel()
