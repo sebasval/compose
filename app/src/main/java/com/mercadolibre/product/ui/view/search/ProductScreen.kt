@@ -18,6 +18,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -123,9 +124,8 @@ fun ListItem(item: ProductItem, onClick: (ProductItem) -> Unit) {
         backgroundColor = MaterialTheme.colors.background,
         elevation = 0.dp,
         modifier = Modifier
-            .height(200.dp)
             .padding(8.dp)
-            .clickable { onClick.invoke(item) },
+            .clickable { onClick.invoke(item) }
     ) {
         Row(
             horizontalArrangement = Arrangement.Start,
@@ -133,39 +133,25 @@ fun ListItem(item: ProductItem, onClick: (ProductItem) -> Unit) {
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .padding(16.dp),
+                .padding(16.dp)
         ) {
-
-            CarImage(item)
-            Spacer(modifier = Modifier.height(8.dp))
             Column(
                 verticalArrangement = Arrangement.SpaceEvenly,
                 horizontalAlignment = Alignment.Start,
-                modifier = Modifier
-                    .padding(8.dp)
+                modifier = Modifier.padding(8.dp)
             ) {
-                Text(
-                    text = "Price: ${item.price} COP",
-                    fontWeight = FontWeight.Bold,
-                    style = Typography.subtitle2,
-                    fontSize = 15.sp
-                )
                 Text(
                     text = item.title,
                     fontWeight = FontWeight.Bold,
                     style = Typography.subtitle2,
+                    maxLines = 2, // Ejemplo para limitar a dos líneas
+                    overflow = TextOverflow.Ellipsis // Pone puntos suspensivos si el texto excede las líneas
                 )
-                Text(
-                    text = item.condition,
-                    fontWeight = FontWeight.Bold,
-                    style = Typography.subtitle1,
-                    color = Color.Blue
-                )
-
             }
         }
     }
 }
+
 
 @Composable
 fun BindList(list: List<ProductItem>, onImageClick: (ProductItemInfo) -> Unit) {
