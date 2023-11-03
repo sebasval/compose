@@ -62,11 +62,7 @@ fun ProductScreen(
                 SearchTextField(
                     value = search, onValueChange = {
                         search = it
-                        if (it.text.isEmpty()) {
-                            productViewModel.getProducts()
-                        } else {
-                            productViewModel.searchProducts(it.text)
-                        }
+                        manageQuery(it, productViewModel)
                     }, hint = stringResource(R.string.cars_screen_search_hint),
                     color = MaterialTheme.colors.background
                 )
@@ -77,6 +73,17 @@ fun ProductScreen(
             }
             ProductsContent(vm = productViewModel, onImageClick = onClick)
         }
+    }
+}
+
+private fun manageQuery(
+    it: TextFieldValue,
+    productViewModel: ProductViewModel
+) {
+    if (it.text.isEmpty()) {
+        productViewModel.getProducts()
+    } else {
+        productViewModel.searchProducts(it.text)
     }
 }
 
