@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">MercadoLibre</string>
-    <string name="cars_screen_title">Welcome to Mercadolibre CellPhones</string>
-    <string name="cars_screen_search_hint">Search</string>
+    <string name="cars_screen_title">Welcome to Mercadolibre</string>
+    <string name="cars_screen_search_hint">Search in Mercadolibre</string>
     <string name="cars_screen_clear">Clear</string>
     <string name="cars_screen_color">Color: %s</string>
     <string name="cars_screen_miles">Miles: %s</string>

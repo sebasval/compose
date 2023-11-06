@@ -1,5 +1,5 @@
-# Mobile Products App with Jetpack Compose
-Discover a wide array of mobile products with an intuitive application.
+# Products App with Jetpack Compose
+Discover a wide array of products with an intuitive application.
 
 ## User Interface Features
 Experience an elegant and responsive interface powered by:
