@@ -70,11 +70,12 @@ class ProductViewModelTest {
         val getProductItemUseCase = GetProductItemUseCase(mockRepository, Dispatchers.Unconfined)
         val viewModel = ProductViewModel(getProductItemUseCase)
 
-        viewModel.getProducts()
+        viewModel.searchProducts("query de ejemplo")
+
 
         advanceUntilIdle()
-        assertTrue(viewModel.state.value is ProductListUiStateReady)
-        assertEquals(mockProductList, (viewModel.state.value as ProductListUiStateReady).productList)
+        val currentState = viewModel.state.value
+        assertTrue(currentState is ProductListUiStateReady && currentState.productList == mockProductList)
     }
 
 
