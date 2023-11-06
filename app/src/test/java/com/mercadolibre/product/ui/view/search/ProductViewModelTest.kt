@@ -7,18 +7,13 @@ import com.mercadolibre.data.api.ApiService
 import com.mercadolibre.data.model.MercadoLibreResponse
 import com.mercadolibre.data.model.ProductItem
 import com.mercadolibre.data.repository.ProductRepository
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.*
-
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.Mock
-import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.*
 import java.io.IOException
 
@@ -28,18 +23,6 @@ import java.io.IOException
 @ExperimentalCoroutinesApi
 class ProductViewModelTest {
 
-    @Mock
-    lateinit var apiService: ApiService
-
-    @Mock
-    lateinit var repository: ProductRepository
-
-    @Mock
-    lateinit var getProductItemUseCase: GetProductItemUseCase
-
-    @Mock
-    lateinit var viewModel: ProductViewModel
-
     // Executes tasks in the Architecture Components in the same thread
     @get:Rule
     var instantTaskExecutorRule = InstantTaskExecutorRule()
@@ -48,46 +31,60 @@ class ProductViewModelTest {
     @get:Rule
     var coroutineRule = MainDispatcherRule()
 
-    @Before
-    fun setUp() {
-        MockitoAnnotations.openMocks(this)
-        repository = ProductRepository(apiService)
-        getProductItemUseCase = GetProductItemUseCase(repository, coroutineRule.testDispatcher)
-        viewModel = ProductViewModel(getProductItemUseCase)
-    }
+    private fun providesApiService(): ApiService = mock()
+
+    private fun providesProductRepository(apiService: ApiService): ProductRepository =
+        ProductRepository(apiService)
+
+    private fun providesGetProductItemUseCase(repository: ProductRepository): GetProductItemUseCase =
+        GetProductItemUseCase(repository, coroutineRule.testDispatcher)
+
+    private fun providesProductViewModel(getProductItemUseCase: GetProductItemUseCase): ProductViewModel =
+        ProductViewModel(getProductItemUseCase)
 
     @Test
     fun getProduct_isSuccess() = runTest {
-        val mockRepository = mock<ProductRepository>()
+        //Given
+        val apiService = providesApiService()
+        val repository = providesProductRepository(apiService)
+        val getProductItemUseCase = providesGetProductItemUseCase(repository)
+        val viewModel = providesProductViewModel(getProductItemUseCase)
+
+        //When
         val mockProductList = listOf(
             ProductItem("Producto 1", "new", "http://url-to-thumbnail1.com", 10000),
             ProductItem("Producto 2", "used", "http://url-to-thumbnail2.com", 20000)
         )
 
         val mockResponse = MercadoLibreResponse(mockProductList)
-        whenever(mockRepository.getProducts(any())).thenReturn(mockResponse)
-
-        val getProductItemUseCase = GetProductItemUseCase(mockRepository, Dispatchers.Unconfined)
-        val viewModel = ProductViewModel(getProductItemUseCase)
+        whenever(apiService.getProducts(any())).thenReturn(mockResponse)
 
         viewModel.searchProducts("query de ejemplo")
-
-
         advanceUntilIdle()
+
+        //Then
+        verify(apiService).getProducts("query de ejemplo")
         val currentState = viewModel.state.value
         assertTrue(currentState is ProductListUiStateReady && currentState.productList == mockProductList)
     }
 
-
     @Test
     fun getProducts_isFail() = runTest {
+        //Given
+        val apiService = providesApiService()
+        val repository = providesProductRepository(apiService)
+        val getProductItemUseCase = providesGetProductItemUseCase(repository)
+
+        //When
+        val viewModel = providesProductViewModel(getProductItemUseCase)
         whenever(repository.getProducts(any())) doAnswer {
             throw IOException()
         }
         viewModel.getProducts()
+
+        //Then
         getProductItemUseCase().catch {
             assertEquals(ProductListUiStateError(), viewModel.state.value)
         }
     }
-
 }
