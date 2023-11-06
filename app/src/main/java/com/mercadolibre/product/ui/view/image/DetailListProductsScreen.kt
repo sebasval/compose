@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,7 +39,7 @@ fun DetailListProductsScreen(
     onClick: (ProductItemInfo) -> Unit,
     productViewModel: ProductViewModel = hiltViewModel()
 ) {
-    productViewModel.searchProducts(productItemTitle)
+    searchProducts(productViewModel, productItemTitle)
     Scaffold(
         topBar = {
             TopAppBar(
@@ -49,6 +50,16 @@ fun DetailListProductsScreen(
         modifier = Modifier.fillMaxSize()
     ) { padding ->
         ProductListContent(vm = productViewModel, onImageClick = onClick)
+    }
+}
+
+@Composable
+private fun searchProducts(
+    productViewModel: ProductViewModel,
+    productItemTitle: String
+) {
+    LaunchedEffect(key1 = true, ){
+        productViewModel.searchProducts(productItemTitle)
     }
 }
 

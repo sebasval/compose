@@ -34,7 +34,8 @@ fun SearchScreen(
     productViewModel: ProductViewModel = hiltViewModel(),
     onClick: (ProductItemInfo) -> Unit
 ) {
-    productViewModel.getProducts()
+    loadProducts(productViewModel)
+
 
     Surface(
         color = Color.Yellow,
@@ -69,6 +70,13 @@ fun SearchScreen(
             }
             ProductsContent(vm = productViewModel, onImageClick = onClick)
         }
+    }
+}
+
+@Composable
+private fun loadProducts(productViewModel: ProductViewModel) {
+    LaunchedEffect(key1 = true) {
+        productViewModel.getProducts()
     }
 }
 
